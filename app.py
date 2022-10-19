@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 import sqlite3
-conn = sqlite3.connect('student_feedback.db')
+conn = sqlite3.connect('/student_feedback.db')
 c = conn.cursor()
     
 
