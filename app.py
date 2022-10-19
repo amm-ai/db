@@ -1,55 +1,29 @@
 import streamlit as st
+from deta import Deta
 
-import numpy as np
-import pandas as pd
+# Data to be written to Deta Base
+with st.form("form"):
+    name = st.text_input("Your name")
+    age = st.number_input("Your age")
+    submitted = st.form_submit_button("Store in database")
 
-import sqlite3
-conn = sqlite3.connect('student_feedback.db')
-c = conn.cursor()
-    
 
-def create_table():
-    c.execute('CREATE TABLE IF NOT EXISTS feedback(date_submitted DATE, Q1 TEXT, Q2 INTEGER, Q3 INTEGER, Q4 TEXT, Q5 TEXT, Q6 TEXT, Q7 TEXT, Q8 TEXT)')
+# Connect to Deta Base with your Project Key
+deta = Deta(st.secrets["deta_key"])
 
-def add_feedback(date_submitted, Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8):
-    c.execute('INSERT INTO feedback (date_submitted,Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8) VALUES (?,?,?,?,?,?,?,?,?)',(date_submitted,Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8))
-    conn.commit()
+# Create a new database "example-db"
+# If you need a new database, just use another name.
+db = deta.Base("example-db")
 
-def main():
+# If the user clicked the submit button,
+# write the data from the form to the database.
+# You can store any data you want here. Just modify that dictionary below (the entries between the {}).
+if submitted:
+    db.put({"name": name, "age": age})
 
-    st.title("Student Feedback")
-
-    d = st.date_input("Today's date",None, None, None, None)
-    
-    question_1 = st.selectbox('Who was your teacher?',('','Mr Thomson', 'Mr Tang', 'Ms Taylor','Ms Rivas','Mr Hindle','Mr Henderson'))
-    st.write('You selected:', question_1)
-    
-    question_2 = st.slider('What year are you in?', 7,13)
-    st.write('You selected:', question_2) 
-    
-    question_3 = st.slider('Overall, how happy are you with the lesson? (5 being very happy and 1 being very dissapointed)', 1,5,1)
-    st.write('You selected:', question_3)
-
-    question_4 = st.selectbox('Was the lesson fun and interactive?',('','Yes', 'No'))
-    st.write('You selected:', question_4)
-
-    question_5 = st.selectbox('Was the lesson interesting and engaging?',('','Yes', 'No'))
-    st.write('You selected:', question_5)
-
-    question_6 = st.selectbox('Were you content with the pace of the lesson?',('','Yes', 'No'))
-    st.write('You selected:', question_6)
-
-    question_7 = st.selectbox('Did your teacher explore the real-world applications of what you learnt?',('','Yes', 'No'))
-    st.write('You selected:', question_7)
-
-    question_8 = st.text_input('What could have been better?', max_chars=50)
-
-    if st.button("Submit feedback"):
-        create_table()
-        add_feedback(d, question_1, question_2, question_3, question_4, question_5, question_6, question_7, question_8)
-        st.success("Feedback submitted")
-        
-        
-
-if __name__ == '__main__':
-    main()
+"---"
+"Here's everything stored in the database:"
+# This reads all items from the database and displays them to your app.
+# db_content is a list of dictionaries. You can do everything you want with it.
+db_content = db.fetch().items
+st.write(db_content)
