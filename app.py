@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 import sqlite3
-conn = sqlite3.connect("student_feedback.db")
+conn = sqlite3.connect('student_feedback.db')
 c = conn.cursor()
     
 
@@ -49,13 +49,7 @@ def main():
         add_feedback(d, question_1, question_2, question_3, question_4, question_5, question_6, question_7, question_8)
         st.success("Feedback submitted")
         
-        # lines I added to display your table
-        query = pd.read_sql_query('''
-        select * from feedback''', conn)
-
-        data = pd.DataFrame(query)
-
-        st.write(data)
+        
 
 if __name__ == '__main__':
     main()
